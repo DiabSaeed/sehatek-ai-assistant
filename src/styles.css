@@ -30,65 +30,101 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --shadow-soft: 0 1px 2px 0 oklch(0.4 0.05 250 / 0.04), 0 1px 3px 0 oklch(0.4 0.05 250 / 0.06);
-  --shadow-elevated: 0 10px 30px -12px oklch(0.45 0.15 250 / 0.18);
-  --gradient-primary: linear-gradient(135deg, oklch(0.58 0.17 250), oklch(0.65 0.16 220));
+  --shadow-soft: 0 1px 2px 0 oklch(0.35 0.1 295 / 0.06), 0 2px 8px -2px oklch(0.35 0.1 295 / 0.08);
+  --shadow-elevated: 0 12px 32px -14px oklch(0.45 0.18 295 / 0.35);
+  --gradient-primary: linear-gradient(135deg, oklch(0.65 0.16 295), oklch(0.72 0.13 320));
+  --gradient-soft: linear-gradient(135deg, oklch(0.97 0.025 295), oklch(0.96 0.03 320));
 }
 
+/* Light — Lavender */
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.985 0.005 240);
-  --foreground: oklch(0.20 0.04 250);
+  --radius: 0.85rem;
+  --background: oklch(0.985 0.012 300);
+  --foreground: oklch(0.22 0.05 295);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.20 0.04 250);
+  --card-foreground: oklch(0.22 0.05 295);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0.04 250);
-  --primary: oklch(0.55 0.17 250);
+  --popover-foreground: oklch(0.22 0.05 295);
+  --primary: oklch(0.62 0.18 295);
   --primary-foreground: oklch(1 0 0);
-  --primary-soft: oklch(0.96 0.025 250);
-  --secondary: oklch(0.96 0.01 240);
-  --secondary-foreground: oklch(0.25 0.04 250);
-  --muted: oklch(0.96 0.008 240);
-  --muted-foreground: oklch(0.52 0.03 250);
-  --accent: oklch(0.62 0.14 160);
+  --primary-soft: oklch(0.955 0.035 295);
+  --secondary: oklch(0.95 0.025 295);
+  --secondary-foreground: oklch(0.28 0.06 295);
+  --muted: oklch(0.96 0.018 295);
+  --muted-foreground: oklch(0.50 0.04 295);
+  --accent: oklch(0.70 0.15 325);
   --accent-foreground: oklch(1 0 0);
-  --accent-soft: oklch(0.95 0.04 160);
+  --accent-soft: oklch(0.95 0.035 325);
   --destructive: oklch(0.60 0.22 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.92 0.01 240);
-  --input: oklch(0.92 0.01 240);
-  --ring: oklch(0.55 0.17 250);
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.20 0.04 250);
-  --sidebar-border: oklch(0.92 0.01 240);
+  --border: oklch(0.91 0.02 295);
+  --input: oklch(0.91 0.02 295);
+  --ring: oklch(0.62 0.18 295);
+}
+
+/* Dark — Deep Lavender */
+.dark {
+  --background: oklch(0.16 0.03 290);
+  --foreground: oklch(0.96 0.015 300);
+  --card: oklch(0.21 0.04 290);
+  --card-foreground: oklch(0.96 0.015 300);
+  --popover: oklch(0.21 0.04 290);
+  --popover-foreground: oklch(0.96 0.015 300);
+  --primary: oklch(0.75 0.16 295);
+  --primary-foreground: oklch(0.18 0.04 290);
+  --primary-soft: oklch(0.28 0.07 295);
+  --secondary: oklch(0.26 0.05 290);
+  --secondary-foreground: oklch(0.96 0.015 300);
+  --muted: oklch(0.24 0.04 290);
+  --muted-foreground: oklch(0.72 0.03 295);
+  --accent: oklch(0.78 0.13 325);
+  --accent-foreground: oklch(0.18 0.04 290);
+  --accent-soft: oklch(0.30 0.07 325);
+  --destructive: oklch(0.70 0.20 22);
+  --destructive-foreground: oklch(0.18 0.04 290);
+  --border: oklch(0.32 0.05 290);
+  --input: oklch(0.32 0.05 290);
+  --ring: oklch(0.75 0.16 295);
+  --shadow-soft: 0 1px 2px 0 oklch(0 0 0 / 0.3), 0 2px 10px -2px oklch(0 0 0 / 0.35);
+  --shadow-elevated: 0 14px 38px -14px oklch(0 0 0 / 0.55);
+  --gradient-primary: linear-gradient(135deg, oklch(0.62 0.17 295), oklch(0.68 0.15 325));
+  --gradient-soft: linear-gradient(135deg, oklch(0.24 0.05 295), oklch(0.26 0.06 325));
 }
 
 @layer base {
   * { border-color: var(--color-border); }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, oklch(0.85 0.08 295 / 0.25), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, oklch(0.82 0.09 325 / 0.22), transparent 60%);
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, oklch(0.45 0.15 295 / 0.30), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, oklch(0.45 0.15 325 / 0.25), transparent 60%);
   }
 }
 
-/* Markdown content styling */
-.md-content { font-size: 0.9rem; line-height: 1.6; }
+/* Markdown styling */
+.md-content { font-size: 0.9rem; line-height: 1.65; }
 .md-content p { margin: 0.5rem 0; }
-.md-content h1, .md-content h2, .md-content h3 { font-weight: 600; margin: 0.75rem 0 0.4rem; color: var(--foreground); }
+.md-content h1, .md-content h2, .md-content h3 { font-weight: 600; margin: 0.75rem 0 0.4rem; }
 .md-content h1 { font-size: 1.15rem; }
 .md-content h2 { font-size: 1.05rem; }
 .md-content h3 { font-size: 0.95rem; }
 .md-content ul, .md-content ol { padding-left: 1.25rem; margin: 0.4rem 0; }
 .md-content li { margin: 0.15rem 0; }
 .md-content code { background: var(--muted); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
-.md-content pre { background: var(--muted); padding: 0.75rem; border-radius: 8px; overflow-x: auto; margin: 0.5rem 0; }
+.md-content pre { background: var(--muted); padding: 0.75rem; border-radius: 8px; overflow-x: auto; }
 .md-content pre code { background: transparent; padding: 0; }
 .md-content table { border-collapse: collapse; width: 100%; margin: 0.6rem 0; font-size: 0.85rem; }
 .md-content th, .md-content td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; }
 .md-content th { background: var(--primary-soft); font-weight: 600; }
 .md-content a { color: var(--primary); text-decoration: underline; }
-.md-content blockquote { border-left: 3px solid var(--primary); padding-left: 0.75rem; color: var(--muted-foreground); margin: 0.5rem 0; }
+.md-content blockquote { border-left: 3px solid var(--primary); padding-left: 0.75rem; color: var(--muted-foreground); }

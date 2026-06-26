@@ -62,7 +62,7 @@ function DocumentsPage() {
   async function handleProcess() {
     setIsProcessing(true);
     try {
-      const res = await fetch(`${API_BASE}/process`, { method: "POST" });
+      const res = await fetch(apiUrl("process"), { method: "POST" });
       if (!res.ok) throw new Error(`Processing failed (${res.status})`);
       toast.success("Documents processed and indexed");
       setProcessedAt(new Date().toLocaleTimeString());

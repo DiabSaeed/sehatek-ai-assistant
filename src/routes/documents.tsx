@@ -46,7 +46,7 @@ function DocumentsPage() {
     try {
       const fd = new FormData();
       fd.append("file", selectedFile);
-      const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: fd });
+      const res = await fetch(apiUrl("upload"), { method: "POST", body: fd });
       if (!res.ok) throw new Error(`Upload failed (${res.status})`);
       toast.success(`Uploaded ${selectedFile.name}`);
       setUploadedFiles((prev) => [...prev, selectedFile.name]);

@@ -19,6 +19,7 @@ export const Route = createFileRoute("/chat")({
 });
 
 function ChatPage() {
+  const { current } = useProjects();
   const [messages, setMessages] = useChatMessages();
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);

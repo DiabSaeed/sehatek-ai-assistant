@@ -37,10 +37,10 @@ function ChatPage() {
     setInput("");
     setIsGenerating(true);
     try {
-      const res = await fetch(apiUrl("generate"), {
+      const res = await fetch(apiUrl("api/v1/nlp/generate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ "query": query }),
       });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const data = (await res.json()) as { answer: string; sources?: string[] };

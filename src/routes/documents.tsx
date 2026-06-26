@@ -47,7 +47,7 @@ function DocumentsPage() {
     try {
       const fd = new FormData();
       fd.append("file", selectedFile);
-      const res = await fetch(apiUrl("upload"), { method: "POST", body: fd });
+      const res = await fetch(apiUrl("api/v1/data/upload"), { method: "POST", body: fd });
       if (!res.ok) throw new Error(`Upload failed (${res.status})`);
       toast.success(`Uploaded ${selectedFile.name}`);
       setUploadedFiles((prev) => [...prev, selectedFile.name]);
@@ -63,8 +63,38 @@ function DocumentsPage() {
   async function handleProcess() {
     setIsProcessing(true);
     try {
-      const res = await fetch(apiUrl("process"), { method: "POST" });
+      const res = await fetch(apiUrl("api/v1/data/process"),
+          {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          do_reset: 1,
+          file_id: null,
+          chunk_size: 1000,
+          chunk_overlab: 200,
+        }),
+      }
+    );
       if (!res.ok) throw new Error(`Processing failed (${res.status})`);
+    const indexRes = await fetch(apiUrl("api/v1/nlp/index/push"),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(
+        {
+          do_reset: 1,
+          page_size: 10,
+        }
+      )
+    }
+  )
+      if (!indexRes.ok) {
+      throw new Error(`Indexing failed (${indexRes.status})`);
+    }
       toast.success("Documents processed and indexed");
       setProcessedAt(new Date().toLocaleTimeString());
     } catch (err) {

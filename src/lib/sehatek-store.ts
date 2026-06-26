@@ -227,7 +227,7 @@ export function useUploadedFiles() {
 }
 
 // ---------- API URL helpers (project-scoped) ----------
-export function apiUrl(endpoint: "upload" | "process" | "generate", projectId?: string) {
+export function apiUrl(endpoint: "api/v1/data/upload" | "api/v1/data/process" | "api/v1/nlp/generate" | "api/v1/nlp/index/push", projectId?: string) {
   const id = projectId ?? getCurrentProjectId();
   return `${API_BASE}/${endpoint}/${id}`;
 }

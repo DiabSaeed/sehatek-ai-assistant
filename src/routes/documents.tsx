@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { Database, FileText, Loader2, Sparkles, Upload, UploadCloud, X } from "lucide-react";
-import { API_BASE, useUploadedFiles } from "@/lib/sehatek-store";
+import { apiUrl, useProjects, useUploadedFiles } from "@/lib/sehatek-store";
 
 export const Route = createFileRoute("/documents")({
   head: () => ({

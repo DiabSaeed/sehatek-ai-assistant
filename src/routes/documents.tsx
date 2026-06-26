@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { Database, FileText, Loader2, Sparkles, Upload, UploadCloud, X } from "lucide-react";
-import { API_BASE, useUploadedFiles } from "@/lib/sehatek-store";
+import { apiUrl, useProjects, useUploadedFiles } from "@/lib/sehatek-store";
 
 export const Route = createFileRoute("/documents")({
   head: () => ({
@@ -23,6 +23,7 @@ function DocumentsPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedAt, setProcessedAt] = useState<string | null>(null);
   const [uploadedFiles, setUploadedFiles] = useUploadedFiles();
+  const { current } = useProjects();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function pickFile(file: File | null) {
@@ -46,7 +47,7 @@ function DocumentsPage() {
     try {
       const fd = new FormData();
       fd.append("file", selectedFile);
-      const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: fd });
+      const res = await fetch(apiUrl("upload"), { method: "POST", body: fd });
       if (!res.ok) throw new Error(`Upload failed (${res.status})`);
       toast.success(`Uploaded ${selectedFile.name}`);
       setUploadedFiles((prev) => [...prev, selectedFile.name]);
@@ -62,7 +63,7 @@ function DocumentsPage() {
   async function handleProcess() {
     setIsProcessing(true);
     try {
-      const res = await fetch(`${API_BASE}/process`, { method: "POST" });
+      const res = await fetch(apiUrl("process"), { method: "POST" });
       if (!res.ok) throw new Error(`Processing failed (${res.status})`);
       toast.success("Documents processed and indexed");
       setProcessedAt(new Date().toLocaleTimeString());
@@ -82,6 +83,13 @@ function DocumentsPage() {
         <p className="text-sm text-muted-foreground mt-1">
           Upload clinical PDFs, then run the ingestion pipeline to embed and index them.
         </p>
+        {current && (
+          <div className="mt-2 inline-flex items-center gap-2 text-[11px] rounded-full bg-primary-soft text-primary px-2.5 py-1 font-medium border border-border">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            {current.name}
+            <span className="text-muted-foreground font-normal">· {current.id.slice(0, 8)}</span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Toaster, toast } from "sonner";
 import { Bot, FileText, Loader2, Send, Stethoscope, User } from "lucide-react";
-import { API_BASE, useChatMessages, type ChatMessage } from "@/lib/sehatek-store";
+import { apiUrl, useChatMessages, useProjects, type ChatMessage } from "@/lib/sehatek-store";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/chat")({
 });
 
 function ChatPage() {
+  const { current } = useProjects();
   const [messages, setMessages] = useChatMessages();
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -36,7 +37,7 @@ function ChatPage() {
     setInput("");
     setIsGenerating(true);
     try {
-      const res = await fetch(`${API_BASE}/generate`, {
+      const res = await fetch(apiUrl("generate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
@@ -68,6 +69,13 @@ function ChatPage() {
           <p className="text-sm text-muted-foreground mt-1">
             Grounded answers from your indexed clinical knowledge base.
           </p>
+          {current && (
+            <div className="mt-2 inline-flex items-center gap-2 text-[11px] rounded-full bg-primary-soft text-primary px-2.5 py-1 font-medium border border-border">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              {current.name}
+              <span className="text-muted-foreground font-normal">· {current.id.slice(0, 8)}</span>
+            </div>
+          )}
         </div>
         {messages.length > 0 && (
           <button

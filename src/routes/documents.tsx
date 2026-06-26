@@ -23,6 +23,7 @@ function DocumentsPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedAt, setProcessedAt] = useState<string | null>(null);
   const [uploadedFiles, setUploadedFiles] = useUploadedFiles();
+  const { current } = useProjects();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function pickFile(file: File | null) {

@@ -36,7 +36,7 @@ function ChatPage() {
     setInput("");
     setIsGenerating(true);
     try {
-      const res = await fetch(`${API_BASE}/generate`, {
+      const res = await fetch(apiUrl("generate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),

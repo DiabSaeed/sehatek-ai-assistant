@@ -83,6 +83,13 @@ function DocumentsPage() {
         <p className="text-sm text-muted-foreground mt-1">
           Upload clinical PDFs, then run the ingestion pipeline to embed and index them.
         </p>
+        {current && (
+          <div className="mt-2 inline-flex items-center gap-2 text-[11px] rounded-full bg-primary-soft text-primary px-2.5 py-1 font-medium border border-border">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            {current.name}
+            <span className="text-muted-foreground font-normal">· {current.id.slice(0, 8)}</span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

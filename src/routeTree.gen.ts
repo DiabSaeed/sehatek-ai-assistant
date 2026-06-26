@@ -9,10 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as AutomationRouteImport } from './routes/automation'
+import { Route as ArchitectureRouteImport } from './routes/architecture'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DocumentsRoute = DocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
@@ -23,6 +32,21 @@ const ChatRoute = ChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AutomationRoute = AutomationRouteImport.update({
+  id: '/automation',
+  path: '/automation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchitectureRoute = ArchitectureRouteImport.update({
+  id: '/architecture',
+  path: '/architecture',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +55,81 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/architecture': typeof ArchitectureRoute
+  '/automation': typeof AutomationRoute
   '/chat': typeof ChatRoute
   '/documents': typeof DocumentsRoute
+  '/reports': typeof ReportsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/architecture': typeof ArchitectureRoute
+  '/automation': typeof AutomationRoute
   '/chat': typeof ChatRoute
   '/documents': typeof DocumentsRoute
+  '/reports': typeof ReportsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/architecture': typeof ArchitectureRoute
+  '/automation': typeof AutomationRoute
   '/chat': typeof ChatRoute
   '/documents': typeof DocumentsRoute
+  '/reports': typeof ReportsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chat' | '/documents'
+  fullPaths:
+    | '/'
+    | '/analytics'
+    | '/architecture'
+    | '/automation'
+    | '/chat'
+    | '/documents'
+    | '/reports'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chat' | '/documents'
-  id: '__root__' | '/' | '/chat' | '/documents'
+  to:
+    | '/'
+    | '/analytics'
+    | '/architecture'
+    | '/automation'
+    | '/chat'
+    | '/documents'
+    | '/reports'
+  id:
+    | '__root__'
+    | '/'
+    | '/analytics'
+    | '/architecture'
+    | '/automation'
+    | '/chat'
+    | '/documents'
+    | '/reports'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
+  ArchitectureRoute: typeof ArchitectureRoute
+  AutomationRoute: typeof AutomationRoute
   ChatRoute: typeof ChatRoute
   DocumentsRoute: typeof DocumentsRoute
+  ReportsRoute: typeof ReportsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/documents': {
       id: '/documents'
       path: '/documents'
@@ -75,6 +144,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/automation': {
+      id: '/automation'
+      path: '/automation'
+      fullPath: '/automation'
+      preLoaderRoute: typeof AutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/architecture': {
+      id: '/architecture'
+      path: '/architecture'
+      fullPath: '/architecture'
+      preLoaderRoute: typeof ArchitectureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,8 +177,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
+  ArchitectureRoute: ArchitectureRoute,
+  AutomationRoute: AutomationRoute,
   ChatRoute: ChatRoute,
   DocumentsRoute: DocumentsRoute,
+  ReportsRoute: ReportsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -30,17 +31,17 @@ import { useTheme } from "../hooks/use-theme";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h1 className="text-7xl font-bold text-slate-900 dark:text-slate-100">404</h1>
+        <h2 className="mt-4 text-xl font-semibold text-slate-900 dark:text-slate-100">Page not found</h2>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-xl bg-violet-600 hover:bg-violet-700 px-4 py-2 text-sm font-semibold text-white transition-colors"
           >
             Go home
           </Link>
@@ -58,12 +59,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           This page didn't load
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -72,13 +73,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-xl bg-violet-600 hover:bg-violet-700 px-4 py-2 text-sm font-semibold text-white transition-colors"
           >
             Try again
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent/20"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
           >
             Go home
           </a>
@@ -107,7 +108,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -152,107 +153,81 @@ const knowledgeNav: NavItem[] = [
   { to: "/chat", label: "AI Assistant", desc: "Grounded RAG chat", Icon: Bot },
 ];
 
-function SidebarNavButton({ item, isCollapsed }: { item: NavItem; isCollapsed: boolean }) {
-  const { Icon } = item;
-  const baseStyle: React.CSSProperties = { backgroundColor: "transparent", boxShadow: "none" };
-  const activeStyle: React.CSSProperties = {
-    backgroundColor: "#6D28D9",
-    boxShadow: "0 4px 12px rgba(91,33,182,0.2)",
-  };
+const ALL_NAV = [...clinicalNav, ...knowledgeNav];
 
+function SidebarLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
+  const { Icon } = item;
   return (
     <Link
       to={item.to}
-      title={isCollapsed ? item.label : undefined}
+      title={collapsed ? item.label : undefined}
       activeOptions={item.exact ? { exact: true } : undefined}
-      className={`w-full flex items-center rounded-xl text-sm font-medium transition-all duration-200 group relative ${
-        isCollapsed ? "justify-center p-3.5" : "gap-3.5 px-4 py-3.5"
+      className={`group w-full flex items-center rounded-xl text-sm font-medium transition-all relative text-violet-100/80 hover:text-white hover:bg-white/5 ${
+        collapsed ? "justify-center p-3" : "gap-3 px-3 py-2.5"
       }`}
-      style={baseStyle}
-      activeProps={{ style: activeStyle }}
+      activeProps={{
+        className: `group w-full flex items-center rounded-xl text-sm font-medium transition-all relative text-white bg-violet-500/25 ring-1 ring-inset ring-violet-400/30 ${
+          collapsed ? "justify-center p-3" : "gap-3 px-3 py-2.5"
+        }`,
+      }}
     >
-      {({ isActive }) => (
-        <>
-          <Icon
-            className="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-105 duration-200"
-            style={{ color: isActive ? "#FFFFFF" : "#C4B5FD" }}
-          />
-          {!isCollapsed && (
-            <div className="text-left truncate">
-              <p className="font-semibold tracking-wide leading-tight" style={{ color: isActive ? "#FFFFFF" : "#EDE9FE" }}>
-                {item.label}
-              </p>
-              <p className="text-[11px] mt-0.5" style={{ color: isActive ? "#C4B5FD" : "#A78BFA" }}>
-                {item.desc}
-              </p>
-            </div>
-          )}
-        </>
+      <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+      {!collapsed && (
+        <div className="text-left truncate min-w-0">
+          <p className="font-semibold leading-tight truncate">{item.label}</p>
+          <p className="text-[11px] mt-0.5 text-violet-200/60 truncate">{item.desc}</p>
+        </div>
       )}
     </Link>
   );
 }
 
-function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean; setIsCollapsed: (v: boolean) => void }) {
+function Sidebar({ collapsed, setCollapsed }: { collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   return (
     <aside
-      className={`hidden md:flex md:flex-col text-slate-200 flex-shrink-0 relative sidebar-transition ${
-        isCollapsed ? "w-20" : "w-72"
+      className={`hidden md:flex md:flex-col flex-shrink-0 relative bg-[#1e1638] dark:bg-[#15102a] border-r border-violet-950/40 transition-[width] duration-300 ${
+        collapsed ? "w-20" : "w-64"
       }`}
-      style={{ backgroundColor: "#4C1D95", transition: "width 0.35s cubic-bezier(0.4,0,0.2,1)" }}
     >
       <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3.5 top-8 bg-white border shadow-md rounded-full p-1.5 transition-all z-50 group"
-        style={{ borderColor: "#DDD6FE", color: "#6D28D9" }}
+        onClick={() => setCollapsed(!collapsed)}
+        aria-label="Toggle sidebar"
+        className="absolute -right-3 top-7 z-50 h-6 w-6 inline-flex items-center justify-center rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-violet-600 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-slate-700 transition-colors"
       >
-        {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+        {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
       </button>
 
-      <div className="p-6 overflow-hidden whitespace-nowrap" style={{ borderBottom: "1px solid #5B21B6" }}>
-        <div className="flex items-center gap-3.5">
-          <div className="relative flex-shrink-0">
-            <div className="absolute -inset-1 rounded-xl blur-sm opacity-70" style={{ backgroundColor: "#8B5CF6" }} />
-            <span
-              className="relative inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white font-extrabold text-lg shadow-inner"
-              style={{ color: "#6D28D9", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            >
-              S
-            </span>
+      {/* Brand */}
+      <div className={`h-16 flex items-center border-b border-white/5 ${collapsed ? "justify-center px-3" : "px-5"}`}>
+        {collapsed ? (
+          <span className="text-lg font-bold tracking-tight text-white">S</span>
+        ) : (
+          <div>
+            <p className="text-[15px] font-semibold tracking-tight text-white leading-none">Sehatek</p>
+            <p className="text-[10.5px] mt-1 text-violet-300/70 tracking-wide">Clinical Portal</p>
           </div>
-          {!isCollapsed && (
-            <div>
-              <p className="text-lg font-bold tracking-tight text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                Sehatek
-              </p>
-              <p className="text-xs tracking-wide mt-0.5" style={{ color: "#C4B5FD" }}>
-                Clinical Infrastructure
-              </p>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-5 overflow-y-auto">
-        <div className="space-y-1.5">
-          {!isCollapsed && (
-            <p className="px-2 text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "#A78BFA" }}>
+      <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-6">
+        <div className="space-y-1">
+          {!collapsed && (
+            <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-widest text-violet-300/50">
               Clinical Portal
             </p>
           )}
           {clinicalNav.map((item) => (
-            <SidebarNavButton key={item.to} item={item} isCollapsed={isCollapsed} />
+            <SidebarLink key={item.to} item={item} collapsed={collapsed} />
           ))}
         </div>
-
-        <div className="space-y-1.5">
-          {!isCollapsed && (
-            <p className="px-2 text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: "#A78BFA" }}>
+        <div className="space-y-1">
+          {!collapsed && (
+            <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-widest text-violet-300/50">
               Knowledge System
             </p>
           )}
           {knowledgeNav.map((item) => (
-            <SidebarNavButton key={item.to} item={item} isCollapsed={isCollapsed} />
+            <SidebarLink key={item.to} item={item} collapsed={collapsed} />
           ))}
         </div>
       </nav>
@@ -260,60 +235,33 @@ function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean; setIsC
   );
 }
 
-function MobileTopBar({ onOpen }: { onOpen: () => void }) {
-  return (
-    <header
-      className="md:hidden px-5 py-4 flex justify-between items-center text-white w-full z-40 shadow-md"
-      style={{ backgroundColor: "#4C1D95", borderBottom: "1px solid #5B21B6" }}
-    >
-      <div className="flex items-center gap-2">
-        <span
-          className="w-7 h-7 bg-white rounded-lg flex items-center justify-center font-extrabold text-sm"
-          style={{ color: "#6D28D9", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-        >
-          S
-        </span>
-        <span className="font-bold tracking-tight text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          Sehatek
-        </span>
-      </div>
-      <button onClick={onOpen} className="p-1 rounded-lg" style={{ backgroundColor: "#5B21B6", color: "#EDE9FE" }}>
-        <Menu className="w-5 h-5" />
-      </button>
-    </header>
-  );
-}
-
 function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null;
-  const all = [...clinicalNav, ...knowledgeNav];
   return (
-    <div className="fixed inset-0 bg-slate-950/60 z-50 md:hidden backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 md:hidden" onClick={onClose}>
       <div
-        className="w-72 h-full p-5 shadow-2xl flex flex-col"
-        style={{ backgroundColor: "#4C1D95" }}
+        className="w-72 h-full bg-[#1e1638] p-5 shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-4" style={{ borderBottom: "1px solid #5B21B6" }}>
-          <p className="text-white font-bold text-base" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Navigation Matrix
-          </p>
-          <button onClick={onClose} className="p-1">
-            <X className="w-5 h-5" style={{ color: "#C4B5FD" }} />
+        <div className="flex items-center justify-between pb-4 border-b border-white/10">
+          <p className="text-white font-semibold">Sehatek</p>
+          <button onClick={onClose} className="p-1 text-violet-200 hover:text-white">
+            <X className="w-5 h-5" />
           </button>
         </div>
         <div className="space-y-1 mt-4 overflow-y-auto">
-          {all.map((item) => (
+          {ALL_NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               activeOptions={item.exact ? { exact: true } : undefined}
               onClick={onClose}
-              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm transition-all"
-              style={{ color: "#EDE9FE" }}
-              activeProps={{ style: { backgroundColor: "#6D28D9", color: "#FFFFFF" } }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-violet-100 hover:bg-white/5"
+              activeProps={{
+                className: "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white bg-violet-500/25 ring-1 ring-inset ring-violet-400/30",
+              }}
             >
-              <item.Icon className="w-5 h-5" style={{ color: "#C4B5FD" }} />
+              <item.Icon className="w-5 h-5" />
               {item.label}
             </Link>
           ))}
@@ -323,32 +271,57 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   );
 }
 
+function TopHeader({ onOpenMobile }: { onOpenMobile: () => void }) {
+  const { theme, toggle } = useTheme();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const current = ALL_NAV.find((n) => (n.exact ? pathname === n.to : pathname.startsWith(n.to))) ?? ALL_NAV[0];
+
+  return (
+    <header className="h-16 flex-shrink-0 flex items-center justify-between gap-3 px-4 sm:px-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+      <div className="flex items-center gap-3 min-w-0">
+        <button
+          onClick={onOpenMobile}
+          className="md:hidden h-9 w-9 inline-flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+          aria-label="Open navigation"
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+        <div className="hidden sm:flex items-center gap-2 text-xs font-medium min-w-0">
+          <span className="text-slate-400 dark:text-slate-500">Workspace</span>
+          <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600" />
+          <span className="font-semibold text-slate-900 dark:text-slate-100 truncate">{current.label}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={toggle}
+          aria-label="Toggle theme"
+          className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-300 hover:border-violet-300 dark:hover:border-violet-500/50 transition-colors"
+        >
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
+      </div>
+    </header>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const { theme, toggle } = useTheme();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex h-screen w-screen bg-[#FAFBFC] antialiased overflow-hidden text-slate-800" style={{ fontFamily: "'Inter', sans-serif" }}>
-        <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+      <div
+        className="flex h-screen w-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased"
+        style={{ fontFamily: "'Inter', sans-serif" }}
+      >
+        <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+        <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
         <div className="flex-1 flex flex-col h-full overflow-hidden">
-          <MobileTopBar onOpen={() => setMobileOpen(true)} />
-          <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
-
-          <div className="absolute top-3 right-4 z-40 hidden md:block">
-            <button
-              onClick={toggle}
-              aria-label="Toggle theme"
-              className="h-9 w-9 inline-flex items-center justify-center rounded-xl border bg-white/80 backdrop-blur shadow-sm hover:bg-white transition-colors"
-              style={{ borderColor: "#EDE9FE", color: "#6D28D9" }}
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-          </div>
-
+          <TopHeader onOpenMobile={() => setMobileOpen(true)} />
           <main className="flex-1 overflow-y-auto relative">
             <Outlet />
           </main>

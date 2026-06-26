@@ -1,12 +1,11 @@
-// Sehatek surfaces — integrated verbatim from user's Sehatek.jsx.
-// Per strict rules: state, variables, functions, PowerBI embed URLs, and
-// `reportsList` are NOT modified. Only the outermost wrappers are adapted
-// so each surface mounts inside our route layout.
+// Sehatek surfaces — logic preserved verbatim from user's Sehatek.jsx.
+// Only the return JSX has been restyled to the new clean SaaS look with
+// full dark-mode support. State, fetch calls, PowerBI URLs, and reportsList
+// are untouched.
 
 import { useState, useEffect } from "react";
 import {
   Workflow,
-  ChevronRight,
   Send,
   Database,
   Loader2,
@@ -23,113 +22,34 @@ import {
   FileText,
   ChevronDown,
   RefreshCw,
-  Bell,
 } from "lucide-react";
 
 /* ----------------------------------------------------------------- */
-/* Global Styles & Color Palette Tokens Custom Engine                */
+/* Toast                                                              */
 /* ----------------------------------------------------------------- */
-export function SehatekGlobalStyles() {
-  useEffect(() => {
-    if (document.getElementById("sehatek-premium-styles")) return;
-    const styleEl = document.createElement("style");
-    styleEl.id = "sehatek-premium-styles";
-    styleEl.innerHTML = `
-      .font-display { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
-      .font-body { font-family: 'Inter', sans-serif; }
-      .font-data { font-family: 'JetBrains Mono', monospace; }
-
-      @keyframes heartbeat-draw {
-        0% { stroke-dashoffset: 240; }
-        100% { stroke-dashoffset: 0; }
-      }
-      .pulse-path {
-        stroke-dasharray: 240;
-        animation: heartbeat-draw 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-      }
-
-      @keyframes slide-in-up {
-        from { opacity: 0; transform: translateY(12px) scale(0.98); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-      }
-      .animate-toast { animation: slide-in-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-      .animate-fade-in { animation: slide-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-      .scroll-premium::-webkit-scrollbar { height: 5px; width: 5px; }
-      .scroll-premium::-webkit-scrollbar-track { background: transparent; }
-      .scroll-premium::-webkit-scrollbar-thumb { background-color: rgba(139, 92, 246, 0.15); border-radius: 9999px; }
-
-      .sidebar-transition { transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
-
-      .glass-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(221, 214, 254, 0.5);
-      }
-    `;
-    document.head.appendChild(styleEl);
-  }, []);
-  return null;
-}
-
-/* ----------------------------------------------------------------- */
-/* Shared Visual Assets & Notifications                              */
-/* ----------------------------------------------------------------- */
-export function PulseLine({ strokeColor = "#8B5CF6", className = "" }: { strokeColor?: string; className?: string }) {
-  return (
-    <svg viewBox="0 0 240 24" className={`w-full h-5 ${className}`} preserveAspectRatio="none" aria-hidden="true">
-      <path
-        d="M0,12 L40,12 L48,3 L56,21 L64,12 L92,12 L100,5 L108,19 L116,12 L240,12"
-        fill="none"
-        strokeWidth="2.5"
-        className="pulse-path"
-        style={{ stroke: strokeColor }}
-      />
-    </svg>
-  );
-}
-
 type Toast = { title: string; message: string; type: "success" | "error" } | null;
 
 export function ToastNotification({ toast, onClose }: { toast: Toast; onClose: () => void }) {
   if (!toast) return null;
+  const isSuccess = toast.type === "success";
   return (
-    <div className="fixed bottom-6 right-6 z-50 max-w-md w-full bg-white/95 border border-[#EDE9FE] shadow-[0_10px_30px_rgba(119,51,237,0.1)] backdrop-blur-md rounded-2xl p-4 flex items-start gap-3.5 animate-toast">
-      <div className={`p-2 rounded-xl mt-0.5 ${toast.type === "success" ? "bg-[#16A34A]/10 text-[#16A34A]" : "bg-[#DC2626]/10 text-[#DC2626]"}`}>
-        {toast.type === "success" ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+    <div className="fixed bottom-6 right-6 z-50 max-w-md w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg p-4 flex items-start gap-3.5 animate-in slide-in-from-bottom-4 fade-in duration-300">
+      <div className={`p-2 rounded-xl mt-0.5 ${isSuccess ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"}`}>
+        {isSuccess ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
       </div>
-      <div className="flex-1">
-        <h4 className="text-sm font-semibold text-slate-900 font-display">{toast.title}</h4>
-        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed font-body">{toast.message}</p>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{toast.title}</h4>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{toast.message}</p>
       </div>
-      <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition p-1 rounded-lg">
+      <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition p-1 rounded-lg">
         <X className="w-4 h-4" />
       </button>
     </div>
   );
 }
 
-export function SehatekSubHeader({ activeLabel }: { activeLabel: string }) {
-  return (
-    <header className="hidden md:flex items-center justify-between px-6 py-3.5 border-b bg-white/70 backdrop-blur-md sticky top-0 z-30" style={{ borderColor: "#EDE9FE" }}>
-      <div className="flex items-center gap-2 text-xs font-medium font-body" style={{ color: "#64748B" }}>
-        <span>Workspace Portal</span>
-        <ChevronRight className="w-3 h-3 text-slate-400" />
-        <span className="font-semibold" style={{ color: "#4C1D95" }}>{activeLabel}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="relative cursor-pointer p-2 bg-slate-50 rounded-xl border" style={{ borderColor: "#EDE9FE", color: "#6D28D9" }}>
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#7C3AED" }} />
-        </div>
-      </div>
-    </header>
-  );
-}
-
 /* ----------------------------------------------------------------- */
-/* Welcome Surface (Home) View Component                             */
+/* Welcome Surface (Home)                                             */
 /* ----------------------------------------------------------------- */
 export function WelcomeSurface() {
   const customTechStack = [
@@ -162,120 +82,123 @@ export function WelcomeSurface() {
     },
   ];
 
+  const foundation = [
+    {
+      icon: Activity,
+      title: "Fabric Real-Time Data Streams",
+      body: "Connected directly to active Microsoft Fabric Architecture Streams. Captures operational clinical metrics with sub-second analytical syncing across medical layers.",
+      tag: "Active Production Bridge",
+    },
+    {
+      icon: Cpu,
+      title: "Power BI Embedded Surface",
+      body: "Direct integration with workspace embedded tokens. Supports both interactive dashboards and pixel-perfect paginated report builder definitions (.RDL).",
+      tag: "Dedicated Capacity Active",
+    },
+    {
+      icon: Server,
+      title: "Orchestration & Proxy Triggers",
+      body: "Localized server proxy gateway to execute workflows on-demand. Coordinates background processing, SharePoint routing, and automated clinical communications.",
+      tag: "REST Edge Gateway Online",
+    },
+  ];
+
   return (
-    <div className="w-full h-full p-6 space-y-8 overflow-y-auto max-w-none scroll-premium animate-fade-in" style={{ backgroundColor: "#FAFBFC" }}>
-      <div className="relative rounded-3xl p-6 md:p-8 overflow-hidden border shadow-sm" style={{ backgroundColor: "#4C1D95", borderColor: "#5B21B6" }}>
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ backgroundColor: "rgba(139,92,246,0.15)" }} />
-        <div className="relative z-10 max-w-4xl">
-          <h1 className="font-display font-bold mb-2.5" style={{ color: "#FFFFFF", fontSize: "28px", letterSpacing: "normal", lineHeight: "1.3" }}>
-            Welcome to Sehatek Management Surface
-          </h1>
-          <p className="text-xs font-normal leading-relaxed max-w-2xl text-purple-100/90">
-            An advanced enterprise clinical orchestration framework designed to unify analytical intelligence, automated synchronizations, and reporting pipelines over high-performance infrastructure.
-          </p>
-        </div>
-      </div>
-
-      <div>
-        <h2 className="font-display text-base font-bold tracking-tight" style={{ color: "#4C1D95" }}>Architectural Foundation</h2>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full max-w-none">
-        <div className="bg-white rounded-2xl p-6 border shadow-[0_2px_12px_rgba(76,29,149,0.02)] flex flex-col justify-between" style={{ borderColor: "#EDE9FE" }}>
-          <div>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: "#F3E8FF", color: "#6D28D9" }}>
-              <Activity className="w-5 h-5" />
-            </div>
-            <h3 className="font-display text-sm font-bold text-slate-900 tracking-tight mb-2">Fabric Real-Time Data Streams</h3>
-            <p className="text-xs text-slate-500 font-body leading-relaxed">
-              Connected directly to active Microsoft Fabric Architecture Streams. It captures operational clinical metrics, ensuring sub-second analytical syncing directly across medical layers.
+    <div className="w-full h-full overflow-y-auto bg-slate-50 dark:bg-slate-900">
+      <div className="max-w-7xl mx-auto p-6 lg:p-10 space-y-10">
+        {/* Hero with soft gradient */}
+        <section className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-gradient-to-br from-violet-50 via-white to-violet-50/60 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800/60 p-8 lg:p-12 shadow-sm">
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 dark:border-violet-500/30 bg-white dark:bg-slate-900/40 px-3 py-1 text-[11px] font-semibold text-violet-700 dark:text-violet-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse" />
+              Clinical Infrastructure · Online
+            </span>
+            <h1 className="mt-4 text-3xl lg:text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              Welcome to the Sehatek <span className="text-violet-600 dark:text-violet-400">Management Surface</span>
+            </h1>
+            <p className="mt-3 text-sm lg:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
+              An advanced enterprise clinical orchestration framework that unifies analytical intelligence,
+              automated synchronizations, and reporting pipelines over high-performance infrastructure.
             </p>
           </div>
-          <div className="pt-6 border-t mt-6 flex items-center gap-1.5 text-[11px] font-semibold font-display" style={{ borderColor: "#F3E8FF", color: "#7C3AED" }}>
-            <span>Active Production Bridge</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-          </div>
-        </div>
+        </section>
 
-        <div className="bg-white rounded-2xl p-6 border shadow-[0_2px_12px_rgba(76,29,149,0.02)] flex flex-col justify-between" style={{ borderColor: "#EDE9FE" }}>
-          <div>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: "#F3E8FF", color: "#6D28D9" }}>
-              <Cpu className="w-5 h-5" />
-            </div>
-            <h3 className="font-display text-sm font-bold text-slate-900 tracking-tight mb-2">Power BI Embedded Surface</h3>
-            <p className="text-xs text-slate-500 font-body leading-relaxed">
-              Houses direct integration layers for workspace embedded tokens. Includes specialized support for both high-density interactive dashboards and pixel-perfect paginated report builder definitions (`.RDL`).
-            </p>
+        {/* Foundation cards */}
+        <section>
+          <div className="mb-5">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Architectural Foundation</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Core surfaces powering the clinical platform.</p>
           </div>
-          <div className="pt-6 border-t mt-6 flex items-center gap-1.5 text-[11px] font-semibold font-display" style={{ borderColor: "#F3E8FF", color: "#7C3AED" }}>
-            <span>Dedicated Capacity Active</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-          </div>
-        </div>
 
-        <div className="bg-white rounded-2xl p-6 border shadow-[0_2px_12px_rgba(76,29,149,0.02)] flex flex-col justify-between" style={{ borderColor: "#EDE9FE" }}>
-          <div>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: "#F3E8FF", color: "#6D28D9" }}>
-              <Server className="w-5 h-5" />
-            </div>
-            <h3 className="font-display text-sm font-bold text-slate-900 tracking-tight mb-2">Orchestration & Proxy Triggers</h3>
-            <p className="text-xs text-slate-500 font-body leading-relaxed">
-              Maintains a localized server proxy gateway to execute workflows on-demand. Coordinates background processing, SharePoint record routing, and automated medical communications via n8n and Azure workflows.
-            </p>
-          </div>
-          <div className="pt-6 border-t mt-6 flex items-center gap-1.5 text-[11px] font-semibold font-display" style={{ borderColor: "#F3E8FF", color: "#7C3AED" }}>
-            <span>REST Edge Gateway Online</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-2">
-        <div className="mb-5">
-          <h2 className="font-display text-sm font-bold" style={{ color: "#4C1D95" }}>Technology Stack</h2>
-          <p className="text-xs text-slate-500 font-body mt-0.5">Tools and platforms powering the Sehatek maternal health platform</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-none">
-          {customTechStack.map((stack, idx) => {
-            const IconComponent = stack.icon;
-            return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {foundation.map(({ icon: Icon, title, body, tag }) => (
               <div
-                key={idx}
-                className="glass-card rounded-2xl p-5 shadow-[0_2px_8px_rgba(76,29,149,0.01)] border flex flex-col justify-between hover:shadow-[0_4px_16px_rgba(76,29,149,0.04)] transition-all duration-300"
-                style={{ borderColor: "#EDE9FE" }}
+                key={title}
+                className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
               >
-                <div>
-                  <div className="flex items-center gap-2.5 mb-4">
-                    <div className="w-8 h-8 rounded-xl flex items-center justify-center text-purple-700 bg-purple-50 border border-purple-100/50 shrink-0">
-                      <IconComponent className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-xs font-bold text-slate-900 font-display tracking-tight">{stack.category}</h3>
-                  </div>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="mt-5 text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400 flex-1">{body}</p>
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700/70 flex items-center gap-1.5 text-[11px] font-medium text-violet-600 dark:text-violet-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                  {tag}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-                  <div className="space-y-3">
-                    {stack.items.map((item, itemIdx) => (
-                      <div key={itemIdx} className="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-purple-50/30 transition-colors duration-150">
-                        <div className="w-1 h-1 rounded-full bg-purple-400 mt-2 shrink-0" />
+        {/* Tech stack */}
+        <section>
+          <div className="mb-5">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Technology Stack</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Tools and platforms powering the Sehatek maternal-health platform.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {customTechStack.map((stack, idx) => {
+              const Icon = stack.icon;
+              return (
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-xs font-semibold text-slate-900 dark:text-slate-100 tracking-tight">{stack.category}</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {stack.items.map((item, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors"
+                      >
+                        <div className="w-1 h-1 rounded-full bg-violet-400 mt-2 shrink-0" />
                         <div>
-                          <p className="text-xs font-bold text-slate-800 font-display tracking-wide">{item.name}</p>
-                          <p className="text-[11px] text-slate-500 font-body mt-0.5 leading-relaxed">{item.detail}</p>
+                          <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">{item.name}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{item.detail}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </div>
   );
 }
 
 /* ----------------------------------------------------------------- */
-/* Combined Power BI View Layer (Interactive vs Paginated Switch)    */
+/* Combined Power BI View Layer (Interactive vs Paginated Switch)     */
 /* ----------------------------------------------------------------- */
 export function PowerBICombinedSurface({ initialTab }: { initialTab?: "interactive" | "paginated" }) {
   const [subView, setSubView] = useState<"interactive" | "paginated">(initialTab || "paginated");
@@ -332,47 +255,41 @@ export function PowerBICombinedSurface({ initialTab }: { initialTab?: "interacti
     if (initialTab) setSubView(initialTab);
   }, [initialTab]);
 
+  const segBtn = (active: boolean, tone: "neutral" | "violet" = "neutral") =>
+    `px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+      active
+        ? tone === "violet"
+          ? "bg-white dark:bg-slate-700 text-violet-700 dark:text-violet-300 shadow-sm"
+          : "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+        : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+    }`;
+
+  const inputCls =
+    "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 font-medium text-slate-700 dark:text-slate-200 outline-none focus:border-violet-500 dark:focus:border-violet-400";
+
   return (
-    <div className="w-full h-full p-4 flex flex-col space-y-3 overflow-hidden max-w-none animate-fade-in font-body bg-[#FAFBFC]">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b pb-2 border-slate-200/80">
+    <div className="w-full h-full p-4 lg:p-6 flex flex-col gap-4 overflow-hidden bg-slate-50 dark:bg-slate-900">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="inline-flex p-0.5 rounded-xl bg-slate-100 border border-slate-200/60 shadow-inner">
-            <button
-              onClick={() => setSubView("interactive")}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                subView === "interactive" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
+          <div className="inline-flex p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <button onClick={() => setSubView("interactive")} className={segBtn(subView === "interactive")}>
               Interactive UI
             </button>
-            <button
-              onClick={() => setSubView("paginated")}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                subView === "paginated" ? "bg-white text-purple-700 shadow-sm" : "text-slate-500 hover:text-purple-600"
-              }`}
-            >
+            <button onClick={() => setSubView("paginated")} className={segBtn(subView === "paginated", "violet")}>
               Paginated Builder (6 Reports)
             </button>
           </div>
 
           {subView === "paginated" && (
-            <div className="flex flex-wrap items-center gap-2 bg-purple-50/50 p-1 rounded-xl border border-purple-100 text-xs">
+            <div className="flex flex-wrap items-center gap-2 bg-violet-50 dark:bg-violet-500/10 p-1.5 rounded-xl border border-violet-100 dark:border-violet-500/20 text-xs">
               {activeReportInstance.id === "content_engagement" && (
                 <>
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                    className="bg-white border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700 outline-none focus:border-purple-500"
-                  >
+                  <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className={inputCls}>
                     <option value="2026">Year: 2026</option>
                     <option value="2025">Year: 2025</option>
                     <option value="2023">Year: 2023</option>
                   </select>
-                  <select
-                    value={selectedTrimester}
-                    onChange={(e) => setSelectedTrimester(e.target.value)}
-                    className="bg-white border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700 outline-none focus:border-purple-500"
-                  >
+                  <select value={selectedTrimester} onChange={(e) => setSelectedTrimester(e.target.value)} className={inputCls}>
                     <option value="All">Trimester: All</option>
                     <option value="First">Trimester: First</option>
                     <option value="Second">Trimester: Second</option>
@@ -382,58 +299,58 @@ export function PowerBICombinedSurface({ initialTab }: { initialTab?: "interacti
               )}
 
               {activeReportInstance.id === "doctor_performance" && (
-                <div className="flex items-center gap-1">
-                  <span className="text-slate-500 pl-1 font-medium">Doctor:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-500 dark:text-slate-400 pl-1 font-medium">Doctor:</span>
                   <input
                     type="text"
                     value={currentDoctorName}
                     onChange={(e) => setCurrentDoctorName(e.target.value)}
                     placeholder="Enter Doctor Name"
-                    className="bg-white border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700 outline-none focus:border-purple-500 w-32"
+                    className={`${inputCls} w-36`}
                   />
                 </div>
               )}
 
               {(activeReportInstance.id === "lab_results" || activeReportInstance.id === "pregnancy_followup") && (
-                <div className="flex items-center gap-1">
-                  <span className="text-slate-500 pl-1 font-medium">Pregnancy ID:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-500 dark:text-slate-400 pl-1 font-medium">Pregnancy ID:</span>
                   <input
                     type="text"
                     value={pregnancyId}
                     onChange={(e) => setPregnancyId(e.target.value)}
                     placeholder="e.g. 108388"
-                    className="bg-white border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700 outline-none focus:border-purple-500 w-28 font-data"
+                    className={`${inputCls} w-28 font-mono`}
                   />
                 </div>
               )}
 
               {activeReportInstance.id === "monthly_summary" && (
                 <>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-500 pl-1 font-medium">Month:</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500 dark:text-slate-400 pl-1 font-medium">Month:</span>
                     <input
                       type="number"
                       value={summaryMonth}
                       onChange={(e) => setSummaryMonth(e.target.value)}
                       placeholder="4"
-                      className="bg-white border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700 outline-none focus:border-purple-500 w-16 font-data"
+                      className={`${inputCls} w-16 font-mono`}
                     />
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-500 pl-1 font-medium">Year:</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500 dark:text-slate-400 pl-1 font-medium">Year:</span>
                     <input
                       type="number"
                       value={summaryYear}
                       onChange={(e) => setSummaryYear(e.target.value)}
                       placeholder="2022"
-                      className="bg-white border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700 outline-none focus:border-purple-500 w-20 font-data"
+                      className={`${inputCls} w-20 font-mono`}
                     />
                   </div>
                 </>
               )}
 
-              <span className="text-[10px] text-purple-600 font-bold px-1.5 flex items-center gap-1">
-                <RefreshCw className="w-2.5 h-2.5 animate-spin"/> Dynamic Link Live
+              <span className="text-[10px] text-violet-700 dark:text-violet-300 font-semibold px-1.5 flex items-center gap-1">
+                <RefreshCw className="w-2.5 h-2.5 animate-spin" /> Dynamic Link Live
               </span>
             </div>
           )}
@@ -443,20 +360,20 @@ export function PowerBICombinedSurface({ initialTab }: { initialTab?: "interacti
           <div className="relative z-50">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition-all min-w-[250px] justify-between focus:outline-none focus:border-purple-500"
+              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm hover:border-violet-400 dark:hover:border-violet-400 transition-all min-w-[250px] justify-between"
             >
               <div className="flex items-center gap-1.5 truncate">
-                <FileText className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                <FileText className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
                 <span className="truncate">{activeReportInstance.name}</span>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
             </button>
 
             {isOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-                <div className="absolute right-0 mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50 animate-fade-in max-h-60 overflow-y-auto scroll-premium">
-                  <div className="px-2.5 py-1 text-[9px] font-bold font-display uppercase tracking-wider text-slate-400 border-b border-slate-50 mb-1">
+                <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg py-1 z-50 max-h-72 overflow-y-auto">
+                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-700 mb-1">
                     Select Paginated Report
                   </div>
                   {reportsList.map((rep) => (
@@ -466,7 +383,11 @@ export function PowerBICombinedSurface({ initialTab }: { initialTab?: "interacti
                         setSelectedReport(rep);
                         setIsOpen(false);
                       }}
-                      className="w-full text-left px-3 py-2 text-xs font-medium block truncate text-slate-600 hover:bg-slate-50"
+                      className={`w-full text-left px-3 py-2 text-xs font-medium truncate transition-colors ${
+                        rep.id === activeReportInstance.id
+                          ? "bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/60"
+                      }`}
                     >
                       {rep.name}
                     </button>
@@ -478,7 +399,7 @@ export function PowerBICombinedSurface({ initialTab }: { initialTab?: "interacti
         )}
       </div>
 
-      <div className="flex-1 w-full bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden min-h-[500px] relative">
+      <div className="flex-1 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden min-h-[500px] relative">
         {subView === "interactive" ? (
           <iframe
             title="Sehatek Interactive Production Dashboard"
@@ -501,7 +422,7 @@ export function PowerBICombinedSurface({ initialTab }: { initialTab?: "interacti
 }
 
 /* ----------------------------------------------------------------- */
-/* Core Automation Pipelines Component                               */
+/* Core Automation Pipelines Component                                */
 /* ----------------------------------------------------------------- */
 export function AutomationPipelines() {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -557,96 +478,104 @@ export function AutomationPipelines() {
   return (
     <>
       <ToastNotification toast={toast} onClose={() => setToast(null)} />
-      <div className="w-full h-full p-6 space-y-6 overflow-y-auto max-w-none scroll-premium animate-fade-in" style={{ backgroundColor: "#F5F3FF" }}>
-        <div className="relative rounded-2xl p-5 overflow-hidden border shadow-sm" style={{ backgroundColor: "#4C1D95", borderColor: "#5B21B6" }}>
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ backgroundColor: "rgba(139,92,246,0.15)" }} />
-
-          <div className="relative z-10 max-w-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex-1">
-              <h1 className="font-display font-bold mb-1.5" style={{ color: "#FFFFFF", fontSize: "28px", letterSpacing: "normal", lineHeight: "1.3" }}>
-                Automation Control Surface
-              </h1>
-              <p className="text-xs font-normal leading-relaxed font-body text-white/90" style={{ color: "rgba(255, 255, 255, 0.9)" }}>
-                Direct high-performance integration array bridge routing local telemetry parameters down to Azure Logic triggers, active n8n agents, and secure SharePoint document servers.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2 shrink-0 sm:border-l sm:pl-4" style={{ borderColor: "rgba(255,255,255,0.15)" }}>
-              <div className="flex items-center gap-2 text-[11px] text-white" style={{ color: "#FFFFFF" }}>
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Secure Gateway Active
+      <div className="w-full h-full overflow-y-auto bg-slate-50 dark:bg-slate-900">
+        <div className="max-w-7xl mx-auto p-6 lg:p-10 space-y-8">
+          {/* Hero */}
+          <section className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-gradient-to-br from-violet-50 via-white to-violet-50/60 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800/60 p-8 lg:p-10 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="max-w-2xl">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 dark:border-violet-500/30 bg-white dark:bg-slate-900/40 px-3 py-1 text-[11px] font-semibold text-violet-700 dark:text-violet-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse" />
+                  Automation Gateway
+                </span>
+                <h1 className="mt-4 text-2xl lg:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                  Automation Control <span className="text-violet-600 dark:text-violet-400">Surface</span>
+                </h1>
+                <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Route local telemetry through Azure Logic triggers, active n8n agents, and secure SharePoint
+                  document servers via a single high-performance integration bridge.
+                </p>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-white" style={{ color: "#FFFFFF" }}>
-                <Zap className="w-3.5 h-3.5 text-amber-400" /> Proxy Routing Engine Active
+              <div className="flex flex-col gap-2.5 shrink-0">
+                <div className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-900/40 px-3 py-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" /> Secure Gateway Active
+                </div>
+                <div className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-900/40 px-3 py-2">
+                  <Zap className="w-4 h-4 text-amber-500" /> Proxy Routing Online
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div>
-          <h2 className="font-display text-sm font-bold mb-4" style={{ color: "#4C1D95" }}>Available Automation Triggers</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-none">
-            <div className="glass-card rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 group" style={{ borderColor: "#DDD6FE" }}>
-              <div>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(13,148,136,0.1)", border: "1px solid rgba(13,148,136,0.2)", color: "#0D9488" }}>
+          {/* Triggers */}
+          <section>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
+              Available Automation Triggers
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Card 1 */}
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm flex flex-col">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                   <Send className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 font-display">Send Patient's Content Flow</h3>
-                <p className="text-xs mt-2 mb-6 leading-relaxed font-body" style={{ color: "#64748B" }}>
-                  Manually dispatches a cloud transaction loop to extract schema instances, parse clinical metadata strings, and invoke processing arrays before saving synchronized report outputs straight to active SharePoint storage drives.
+                <h3 className="mt-5 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Send Patient's Content Flow
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400 flex-1">
+                  Dispatches a cloud transaction loop to extract schema instances, parse clinical metadata, and
+                  save synchronized report outputs straight to active SharePoint storage drives.
                 </p>
+                <button
+                  onClick={triggerPowerAutomateFlow}
+                  disabled={isSyncing}
+                  className="mt-6 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSyncing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Processing Stack Arrays…
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4" />
+                      Send Patient's Content
+                    </>
+                  )}
+                </button>
               </div>
 
-              <button
-                onClick={triggerPowerAutomateFlow}
-                disabled={isSyncing}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-white rounded-xl text-xs font-bold shadow-sm transition-all disabled:opacity-50"
-                style={{ backgroundColor: "#7C3AED" }}
-              >
-                {isSyncing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Processing Stack Arrays...
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 text-amber-300" />
-                    Send Patient's Content
-                  </>
-                )}
-              </button>
-            </div>
-
-            <div className="glass-card rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 group" style={{ borderColor: "#DDD6FE" }}>
-              <div>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: "rgba(29,78,216,0.1)", border: "1px solid rgba(29,78,216,0.2)", color: "#1D4ED8" }}>
+              {/* Card 2 */}
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm flex flex-col">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400">
                   <Database className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 font-display">Send Doctor's Report Pipeline</h3>
-                <p className="text-xs mt-2 mb-6 leading-relaxed font-body" style={{ color: "#64748B" }}>
-                  Fires asynchronous query logic sequences against dynamic underlying active telemetry views to assemble multi-parameter lists, invokes edge endpoints, and saves logs directly onto tracking layers.
+                <h3 className="mt-5 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Send Doctor's Report Pipeline
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400 flex-1">
+                  Fires asynchronous query logic against active telemetry views to assemble multi-parameter
+                  lists, invoke edge endpoints, and persist logs onto tracking layers.
                 </p>
+                <button
+                  onClick={triggerRecurrenceFlow}
+                  disabled={isRecurrentSyncing}
+                  className="mt-6 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isRecurrentSyncing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Evaluating Aggregations…
+                    </>
+                  ) : (
+                    <>
+                      <Workflow className="w-4 h-4" />
+                      Send Doctor's Report
+                    </>
+                  )}
+                </button>
               </div>
-
-              <button
-                onClick={triggerRecurrenceFlow}
-                disabled={isRecurrentSyncing}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-white rounded-xl text-xs font-bold shadow-sm transition-all disabled:opacity-50"
-                style={{ backgroundColor: "#7C3AED" }}
-              >
-                {isRecurrentSyncing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Evaluating Aggregations...
-                  </>
-                ) : (
-                  <>
-                    <Workflow className="w-4 h-4 text-violet-200" />
-                    Send Doctor's Report
-                  </>
-                )}
-              </button>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </>

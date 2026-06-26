@@ -69,6 +69,13 @@ function ChatPage() {
           <p className="text-sm text-muted-foreground mt-1">
             Grounded answers from your indexed clinical knowledge base.
           </p>
+          {current && (
+            <div className="mt-2 inline-flex items-center gap-2 text-[11px] rounded-full bg-primary-soft text-primary px-2.5 py-1 font-medium border border-border">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              {current.name}
+              <span className="text-muted-foreground font-normal">· {current.id.slice(0, 8)}</span>
+            </div>
+          )}
         </div>
         {messages.length > 0 && (
           <button

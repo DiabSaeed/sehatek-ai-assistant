@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Toaster, toast } from "sonner";
 import { Bot, FileText, Loader2, Send, Stethoscope, User } from "lucide-react";
-import { API_BASE, useChatMessages, type ChatMessage } from "@/lib/sehatek-store";
+import { apiUrl, useChatMessages, useProjects, type ChatMessage } from "@/lib/sehatek-store";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({

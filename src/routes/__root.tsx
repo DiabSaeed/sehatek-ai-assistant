@@ -349,7 +349,7 @@ function RootComponent() {
             </button>
           </div>
 
-          <main className="flex-1 overflow-hidden relative">
+          <main className="flex-1 overflow-y-auto relative">
             <Outlet />
           </main>
         </div>
